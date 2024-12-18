@@ -3,6 +3,39 @@ show_users() {
     awk -F':' '{print $1 " -> " $6}' /etc/passwd | sort
 }
 
+show_processes() {
+    echo "Перечень запущенных процессов:"
+    ps -eo pid,comm --sort=pid
+}
+
+show_help() {
+    echo "Usage: script [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -u, --users          Вывести перечень пользователей и их домашних директорий"
+    echo "  -p, --processes      Вывести перечень запущенных процессов"
+    echo "  -h, --help           Показать справку"
+    echo "  -l, --log PATH       Сохранить вывод в указанный файл"
+    echo "  -e, --errors PATH    Сохранить ошибки в указанный файл"
+}
+
+log_output() {
+    if [[ -w "$1" || ! -e "$1" && -w "$(dirname "$1")" ]]; then
+        exec 1>>"$1"
+    else
+        echo "Ошибка: Нет доступа для записи в файл $1" >&2
+        exit 1
+    fi
+}
+
+log_errors() {
+    if [[ -w "$1" || ! -e "$1" && -w "$(dirname "$1")" ]]; then
+        exec 2>>"$1"
+    else
+        echo "Ошибка: Нет доступа для записи в файл $1" >&2
+        exit 1
+    fi
+}
 
 
 # Обработка аргументов
